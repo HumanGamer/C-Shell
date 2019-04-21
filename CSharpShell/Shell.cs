@@ -12,13 +12,13 @@ using Microsoft.CSharp;
 
 namespace LiveCode
 {
-    public class Interface
+    public class Shell
     {
         protected List<string> Lines;
 
         public bool Running { get; private set; }
 
-        public Interface()
+        public Shell()
         {
             Lines = new List<string>();
             Running = true;

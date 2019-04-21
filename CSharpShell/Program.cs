@@ -10,7 +10,7 @@ namespace LiveCode
     {
         public static void Main(string[] args)
         {
-            Interface obj = new Interface();
+            Shell obj = new Shell();
 
             while (obj.Running)
             {
