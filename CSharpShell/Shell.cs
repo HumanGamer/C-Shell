@@ -172,10 +172,16 @@ namespace CSharpShell
 
         protected void RunScript(string script)
         {
+            RunScript(script, "System", "System.IO", "System.Linq", "System.Collections.Generic", "System.Text");
+        }
+
+        protected void RunScript(string script, params string[] imports)
+        {
             try
             {
                 ScriptOptions options = ScriptOptions.Default;
-                //options = options.AddImports("System");
+                options = options.WithReferences("System");
+                options = options.AddImports(imports);
 
                 var result = CSharpScript.EvaluateAsync(script, options);
                 if (result?.Result != null)
