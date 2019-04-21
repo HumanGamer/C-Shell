@@ -4,25 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LiveCode
+namespace CSharpShell
 {
     public static class Program
     {
         public static void Main(string[] args)
         {
-            Shell obj = new Shell();
+            Shell shell = new Shell();
+            shell.Run();
 
-            while (obj.Running)
-            {
-                Console.Write("> ");
-
-                string line = Console.ReadLine();
-                obj.ProcessLine(line);
-            }
-
+#if DEBUG
             Console.WriteLine();
             Console.Write("Press any key to exit...");
             Console.ReadKey();
+#endif
         }
     }
 }
