@@ -11,7 +11,11 @@ namespace CSharpShell
         public static void Main(string[] args)
         {
             Shell shell = new Shell();
-            shell.Run();
+
+            if (args.Length > 0)
+                shell.RunScriptFile(args[0]);
+            else
+                shell.Run();
 
 #if DEBUG
             Console.WriteLine();

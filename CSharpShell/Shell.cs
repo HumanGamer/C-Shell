@@ -22,9 +22,16 @@ namespace CSharpShell
             get
             {
                 StringBuilder sb = new StringBuilder();
-                foreach (var line in Lines)
+                for (int i = 0; i < Lines.Count; i++)
                 {
-                    sb.AppendLine(line);
+                    string line = Lines[i];
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    sb.Append(line);
+
+                    if (i < Lines.Count - 1)
+                        sb.AppendLine();
                 }
 
                 return sb.ToString();
@@ -54,7 +61,7 @@ namespace CSharpShell
         {
             if (line.StartsWith("?"))
             {
-                switch (line.Substring(1))
+                switch (line.Substring(1, 1))
                 {
                     case "":
                     case "h":
@@ -86,16 +93,65 @@ namespace CSharpShell
                         Console.Clear();
                         break;
                     case "v":
-                        Console.WriteLine("Viewing Buffer");
+                        Console.WriteLine("Viewing Buffer: ");
+                        Console.WriteLine("----------------");
                         Console.WriteLine(Script);
+                        Console.WriteLine("----------------");
                         break;
                     case "s":
-                        Console.WriteLine("Saving Not Yet Implemented");
-                        // TODO: Saving
+                        string filename = line.Substring(2);
+                        if (!filename.StartsWith(" "))
+                        {
+                            Console.WriteLine("Usage: ?s <filename>");
+                            break;
+                        }
+
+                        filename = filename.Substring(1).Trim();
+
+                        try
+                        {
+                            if (File.Exists(filename))
+                                File.Delete(filename);
+
+                            File.WriteAllText(filename, Script);
+                        }
+                        catch (IOException ex)
+                        {
+                            Console.WriteLine("An error occurred while saving the file.");
+                            break;
+                        }
+
+                        Console.WriteLine("Saved to " + filename);
                         break;
                     case "l":
-                        Console.WriteLine("Loading Not Yet Implemented");
-                        // TODO: Loading
+                        string filename2 = line.Substring(2);
+                        if (!filename2.StartsWith(" "))
+                        {
+                            Console.WriteLine("Usage: ?s <filename>");
+                            break;
+                        }
+
+                        filename2 = filename2.Substring(1).Trim();
+
+                        if (!File.Exists(filename2))
+                        {
+                            Console.WriteLine("File not found: '" + filename2 + "'");
+                            break;
+                        }
+
+                        try
+                        {
+                            Lines.Clear();
+                            Lines.AddRange(File.ReadAllText(filename2)
+                                .Split(new string[] {"\r\n", "\n"}, StringSplitOptions.None));
+                        }
+                        catch (IOException ex)
+                        {
+                            Console.WriteLine("An error occurred while loading the file.");
+                            break;
+                        }
+
+                        Console.WriteLine("Loaded from " + filename2);
                         break;
                     default:
                         Console.WriteLine("Command not found: " + line);
@@ -109,11 +165,17 @@ namespace CSharpShell
                 Lines.Add(line);
         }
 
+        public void RunScriptFile(string file)
+        {
+            RunScript(File.ReadAllText(file));
+        }
+
         protected void RunScript(string script)
         {
             try
             {
                 ScriptOptions options = ScriptOptions.Default;
+                //options = options.AddImports("System");
 
                 var result = CSharpScript.EvaluateAsync(script, options);
                 if (result?.Result != null)
